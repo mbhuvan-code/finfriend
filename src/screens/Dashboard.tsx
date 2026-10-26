@@ -31,7 +31,14 @@ export function Dashboard({ go }: { go: (s: Screen) => void }) {
   // After saving, glide down so the updated goals and safe-to-spend are in view.
   useEffect(() => {
     if (!celebration) return
-    const t = setTimeout(() => goalsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 450)
+    // Scroll only the app's own scroller, never a parent page (the prototype may be embedded).
+    const t = setTimeout(() => {
+      const el = goalsRef.current
+      const scroller = el?.closest('.overflow-y-auto')
+      if (!el || !scroller) return
+      const top = el.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop - 16
+      scroller.scrollTo({ top, behavior: 'smooth' })
+    }, 450)
     return () => clearTimeout(t)
   }, [celebration])
 
@@ -112,7 +119,7 @@ export function Dashboard({ go }: { go: (s: Screen) => void }) {
       </motion.ul>
 
       {/* Spending goals */}
-      <motion.section ref={goalsRef} variants={rise} className="mt-8 scroll-mt-4">
+      <motion.section ref={goalsRef} variants={rise} className="mt-8">
         <h2 className="flex items-center gap-2 font-display text-[21px] font-semibold tracking-tight">
           <Star className="fill-butter text-[#E6C23A]" size={24} strokeWidth={2.2} />
           Your spending goals

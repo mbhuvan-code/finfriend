@@ -18,7 +18,12 @@ export function useRoute(): [Screen, (s: Screen) => void] {
   }, [])
 
   const go = useCallback((s: Screen) => {
-    window.location.hash = s === 'dashboard' ? '/' : `/${s}`
+    setScreen(s)
+    try {
+      window.location.hash = s === 'dashboard' ? '/' : `/${s}`
+    } catch {
+      // Sandboxed frames may refuse hash changes; in-memory navigation still works.
+    }
   }, [])
 
   return [screen, go]

@@ -60,7 +60,7 @@ function renderScreen(screen: Screen, go: (s: Screen) => void) {
 /** Full-bleed on phones; a centered device frame on larger screens. */
 function PhoneFrame({ children }: { children: ReactNode }) {
   return (
-    <div className="relative flex min-h-full items-center justify-center overflow-hidden md:py-8">
+    <div className="relative flex h-full items-center justify-center overflow-hidden md:py-8">
       {/* soft pastel backdrop, desktop only */}
       <div className="pointer-events-none absolute inset-0 hidden md:block" aria-hidden>
         <div className="absolute -top-24 -left-24 size-[420px] rounded-full bg-lavender/60 blur-3xl" />
@@ -71,7 +71,7 @@ function PhoneFrame({ children }: { children: ReactNode }) {
 
       <div
         id="phone-screen"
-        className="relative h-dvh w-full overflow-hidden bg-cream md:h-[min(844px,calc(100dvh-4rem))] md:w-[390px] md:rounded-[52px] md:shadow-[0_40px_80px_-30px_rgba(41,39,41,0.35),0_0_0_10px_#fff,0_0_0_11px_rgba(41,39,41,0.06)]">
+        className="relative h-full w-full overflow-hidden bg-cream md:h-[min(844px,100%)] md:w-[390px] md:rounded-[52px] md:shadow-[0_40px_80px_-30px_rgba(41,39,41,0.35),0_0_0_10px_#fff,0_0_0_11px_rgba(41,39,41,0.06)]">
         {children}
       </div>
     </div>
