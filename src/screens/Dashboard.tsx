@@ -6,6 +6,8 @@ import { CoinStack } from '../components/Illustrations'
 import { AnimatedMoney, CategoryTile, GoalBar, SpeechBubble, StatusChip, cn } from '../components/ui'
 import { CATEGORIES, CATEGORY_BY_ID, MONTHLY_BUDGET, SPENT, type CategoryId } from '../data/mock'
 import { OVERALL_REMAINING, TOTAL_SPENT, allStatuses, currentMonth, money, type CategoryStatus } from '../lib/budget'
+import posthog, { isPostHogConfigured } from '../lib/posthog'
+import { finfriendLog } from '../lib/posthogLogs'
 import type { Screen } from '../lib/useRoute'
 import { useBudget } from '../state/BudgetContext'
 
@@ -50,6 +52,10 @@ export function Dashboard({ go }: { go: (s: Screen) => void }) {
   }, [celebration, safeInView, clearCelebration])
 
   const leave = (s: Screen) => {
+    if (isPostHogConfigured) {
+      posthog.capture(s === 'edit' ? 'goals_editor_opened' : 'averages_viewed')
+    }
+    finfriendLog.screenOpened(s === 'edit' ? 'goals_editor' : 'averages')
     clearCelebration()
     go(s)
   }

@@ -7,6 +7,8 @@ import { Confetti } from '../components/Illustrations'
 import { AnimatedMoney, CategoryTile, GoalBar, ScreenHeader, StatusChip, cn } from '../components/ui'
 import { CATEGORIES, DEFAULT_LIMITS, type Category, type CategoryId } from '../data/mock'
 import { categoryStatus, money, safeToSpend, type Limits } from '../lib/budget'
+import posthog, { isPostHogConfigured } from '../lib/posthog'
+import { finfriendLog } from '../lib/posthogLogs'
 import type { Screen } from '../lib/useRoute'
 import { useBudget } from '../state/BudgetContext'
 
@@ -28,8 +30,23 @@ export function EditGoals({ go }: { go: (s: Screen) => void }) {
 
   const save = () => {
     if (!dirty || saved) return
+    const changedCategoryCount = CATEGORIES.filter((category) => draft[category.id] !== limits[category.id]).length
+    const overLimitCategoryCount = CATEGORIES.filter((category) => categoryStatus(category.id, draft).isOver).length
+
+    if (isPostHogConfigured) {
+      posthog.capture('goals_saved', {
+        changed_category_count: changedCategoryCount,
+        over_limit_category_count: overLimitCategoryCount,
+      })
+    }
+    finfriendLog.goalsSaved(changedCategoryCount, overLimitCategoryCount)
     saveLimits(draft)
     setSaved(true)
+  }
+
+  const resetToDefaults = () => {
+    if (isPostHogConfigured) posthog.capture('goals_reset_to_defaults')
+    setDraft(DEFAULT_LIMITS)
   }
 
   // After the little celebration, head back to the dashboard where the change replays.
@@ -77,7 +94,7 @@ export function EditGoals({ go }: { go: (s: Screen) => void }) {
               className="flex justify-center overflow-hidden"
             >
               <button
-                onClick={() => setDraft(DEFAULT_LIMITS)}
+                onClick={resetToDefaults}
                 className="mt-1 flex items-center gap-1.5 rounded-full px-3 py-2 text-[13px] font-bold text-ink-soft hover:bg-white"
               >
                 <RotateCcw size={14} strokeWidth={2.5} /> Reset to starting goals
